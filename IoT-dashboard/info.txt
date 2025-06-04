@@ -1,0 +1,52 @@
+Do obslugi API w Postmanie:
+
+GET http://localhost:3100/api/data/latest – Pobiera całą tablicę danych
+POST http://localhost:3100/api/data/123 – Dodaje wartość do tablicy. W body trzeba podać {"elem":10}
+GET http://localhost:3100/api/data/2 – Pobiera wartość według id
+GET http://localhost:3100/api/data/2/latest – Pobiera największą wartość dla danego id (docelowo najnowszy wpis po id)
+GET http://localhost:3100/api/data/2/3 – Pobiera trzy elementy od id 2
+DELETE http://localhost:3100/api/data/all – Usuwa wszystkie elementy z tablicy
+DELETE http://localhost:3100/api/data/2 – Usuwa element o id 2.gi
+
+
+
+import { Request, Response } from "express";
+import UserService from "../services/user.service";
+import PasswordService from "../services/password.service";
+import nodemailer from "nodemailer";
+
+class UserController {
+    public async resetPassword(req: Request, res: Response) {
+        try {
+            const { email } = req.body;
+            const userService = new UserService();
+            const passwordService = new PasswordService();
+
+            const user = await userService.getByEmailOrName(email);
+            if (!user) return res.status(404).send("Użytkownik nie znaleziony!");
+
+            const newPassword = Math.random().toString(36).slice(-8); // Losowe hasło
+            const hashedPassword = await passwordService.hashPassword(newPassword);
+            await passwordService.createOrUpdate({ userId: user._id, password: hashedPassword });
+
+            // Konfiguracja transportu e-mailowego
+            const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: { user: "tw25projekt@gmail.com", pass: "twojeHaslo" }
+            });
+
+            await transporter.sendMail({
+                from: "tw25projekt@gmail.com",
+                to: user.email,
+                subject: "Resetowanie hasła",
+                text: `Twoje nowe hasło: ${newPassword}`
+            });
+
+            res.send("Nowe hasło zostało wysłane na e-mail.");
+        } catch (error) {
+            console.error("Błąd resetowania hasła:", error);
+            res.status(500).send("Błąd serwera.");
+        }
+    }
+}
+export default UserController;
