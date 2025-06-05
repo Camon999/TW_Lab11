@@ -1,0 +1,30 @@
+.value {
+   margin-left: 15px;
+}
+
+.logo {
+   background: url("assets/ki.jpg");
+   background-size: cover;
+   width: 4vh;
+   height: 4vh;
+   margin: 3px;
+}
+
+
+.device-status {
+  background: linear-gradient(135deg, #1c1c1c, #292929);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+  color: white;
+  max-width: 200px;
+  margin: 20px auto;
+  text-align: left;
+}
+
+.MuiChartsLegend-root text {
+  fill: white !important;
+}
+
+
+
